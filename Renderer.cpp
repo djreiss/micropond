@@ -19,24 +19,22 @@ QColor Renderer::getColor(struct Cell *cell, int mode){
 	int r = 0; //temporary red value
 	int g = 0; //temporary green value
 	int b = 0; //temporary blue value
+	if(cell->place->wall && SHOW_LANDSCAPE){
+	   r = 254;
+	   g = 254;
+	   b = 0;
+	}else if(cell->place->dead && SHOW_LANDSCAPE){
+	   r = 254;
+	   g = 254;
+	   b = 254;
+	} else {
 	switch(mode){
 		case GENERATION:
-			if(cell->place->dead && SHOW_LANDSCAPE){
-				r = 254;
-				g = 254;
-				b = 254;
-			}else{
-                                r = qRed((cell->generation / 192) << 16);
-                                g = qGreen((cell->generation << 3));
-                                b = qBlue(cell->generation >> 2);
-			}
-			break;
+		   r = qRed((cell->generation / 192) << 16);
+		   g = qGreen((cell->generation << 3));
+		   b = qBlue(cell->generation >> 2);
+		   break;
 		case GENOME:
-			if(cell->place->dead && SHOW_LANDSCAPE){
-				r = 254;
-				g = 254;
-				b = 254;
-			}else{
 				if(cell->generation >= LIVING_CELL){
 					int hash = 0;
 					for(uint i = 0; i < cell->size;i++ ){
@@ -51,46 +49,27 @@ QColor Renderer::getColor(struct Cell *cell, int mode){
                                         g = hash*123 << 2;
                                         b = hash;
 				}
-			}
 			break;
 		case LINEAGE:
-			if(cell->place->dead && SHOW_LANDSCAPE){
-				r = 254;
-				g = 254;
-				b = 254;
-			}else{
 				if(cell->generation >= LIVING_CELL){
 					r = qRed(cell->lineage * cell->lineage);
 					g = qGreen(cell->lineage * cell->lineage);
 					b = qBlue(cell->lineage * cell->lineage);
 				}
-			}
 			break;
 		case HOME:
-			if(cell->place->dead && SHOW_LANDSCAPE){
-				r = 254;
-				g = 254;
-				b = 254;
-			}else{
 				if(cell->generation >= LIVING_CELL){
 					r = cell->homePond;
 					g = cell->homePond >> 5;
 					b = cell->homePond >> 8;
 				}
-			}
 			break;
 		case LANDSCAPE:{
-			if(cell->place->dead){
-				r = 254;
-				g = 254;
-				b = 254;
-			}else{
 				if(cell->generation >= LIVING_CELL){
 					r = cell->size * 2 + 50;
 					g = cell->size + 100;
 					b = cell->size * 5;
 				}
-			}
 		}break;
 		case ENERGY:
 			r = qRed(cell->energy * 900);
@@ -108,10 +87,14 @@ QColor Renderer::getColor(struct Cell *cell, int mode){
 			b = qBlue(cell->bad * 50);
 			break;
                 case INJECTED:
-                        if(cell->place->dead && SHOW_LANDSCAPE){
+                        if(cell->place->wall && SHOW_LANDSCAPE){
                                 r = 254;
                                 g = 254;
-                                b = 254;
+                                b = 0;
+			}else if(cell->place->dead && SHOW_LANDSCAPE){
+				r = 254;
+				g = 254;
+				b = 254;
                         }else{
                             if(cell->generation >= LIVING_CELL){
                                     r = qRed(cell->injected * cell->injected);
@@ -122,7 +105,7 @@ QColor Renderer::getColor(struct Cell *cell, int mode){
                         break;
                         break;
 	}
-	
+	}
 	return QColor(r % 255,g % 255,b % 255);
 }
 
@@ -148,6 +131,7 @@ void Renderer::updatePicture(){
 	//qDebug() << "Pond:"<< simulation->id() << "cells executed: " << counter;
 
 #ifdef SAVE_PICTURES
+        //qDebug()<<(QDir::homePath()+"/micro/asdf"+QString::number(imageCounter)+".png");
         temp.save(QDir::homePath()+"/micro/asdf"+QString::number(imageCounter)+".png");
 	imageCounter++;
 #endif

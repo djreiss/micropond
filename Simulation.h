@@ -131,7 +131,8 @@ struct Cell{
 };
 
 struct Place{
-	bool dead; //can we reproduce at this place?
+   bool dead; //can we reproduce at this place?
+   bool wall; //differentiate dead from wall
 };
 
 struct Position{
@@ -154,13 +155,15 @@ public:
 	int y(){ return WORLD_Y;}
 	int z(){ return WORLD_Z;}
 
-	struct Cell *cell(int x, int y, int z);
+	struct Cell *cell(const int x, const int y, const int z);
+	struct Cell *cell(const struct Position *pos);
 
 	int genomeSize(){ return GENOME_SIZE;}
 
 	void regenerateEnergy();
 	void pause();
 	void resume();
+	void cutLineages();
         uint counter(){return count;}
         void setEnergyAdd(uint value){ energyAdd = value;}
         uint getEnergyAdd(){return energyAdd;}
@@ -188,11 +191,11 @@ private:
 	inline uchar randomOperation();
 	inline int randomX();
 	inline int randomY();
-	inline int randomZ();
-	inline int randValue(int value);
+	static inline int randomZ();
+	inline int randValue(const int value);
 
-	virtual void executeCell1(int x, int y, int z); //nano pond style
-	virtual void executeCell2(int x, int y, int z); //custom style
+	virtual void executeCell1(const int x, const int y, const int z); //nano pond style
+	virtual void executeCell2(const int x, const int y, const int z); //custom style
 
 	virtual void mutateCell(struct Cell *cell);
 	virtual void killCell(struct Cell *cell);
@@ -218,7 +221,6 @@ private:
 
 	QQueue <struct Cell>*genepool;
 	QSemaphore *genepoolblocker;
-
 
         static const double randScale  = 1.0 / (1.0 + MY_RAND_MAX);
         static const double randScaleX  = WORLD_X / (1.0 + MY_RAND_MAX);

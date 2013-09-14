@@ -74,23 +74,31 @@ void Window::initGui(){
 	QMenuBar *menuBar = new QMenuBar();
 	QMenu *file = new QMenu("File");
 	QAction *close = new QAction("Close",this);
+	close->setShortcut( QKeySequence::Quit );
 	connect(close , SIGNAL(triggered()), this, SLOT(close()));
 
 	QAction *save = new QAction("Save pond as",this);
+	save->setShortcut( QKeySequence::Save );
 	connect(save , SIGNAL(triggered()), this, SLOT(savePond()));
 
 	QAction *load = new QAction("Load pond",this);
+	load->setShortcut( QKeySequence::Open );
 	connect(load , SIGNAL(triggered()), this, SLOT(loadPond()));
 
 	QAction *reset = new QAction("Reset pond",this);
+	reset->setShortcut( QKeySequence::Replace );
 	connect(reset , SIGNAL(triggered()), this, SLOT(resetPond()));
 
 	QAction *resetAll= new QAction("Reset all ponds",this);
 	connect(resetAll , SIGNAL(triggered()), this, SLOT(resetAllPonds()));
 
+	QAction *resetAllLineages= new QAction("Reset all lineages",this);
+	connect(resetAllLineages , SIGNAL(triggered()), this, SLOT(resetAllLineages()));
+
 	file->addAction(save);
 	file->addAction(load);
 	file->addAction(reset);
+	file->addAction(resetAllLineages);
 	file->addAction(resetAll);
 	file->addAction(close);
 
@@ -141,9 +149,14 @@ void Window::initGui(){
 	pondsGroup->setExclusive(true);
 	connect(pondsGroup , SIGNAL(triggered(QAction *)), this, SLOT(selectPond(QAction *)));
 	QMenu *ponds = new QMenu("Ponds");
+	char buffer[8];
 	for(int i = 0; i < simus->size(); i++){
 		QAction *pond = new QAction(QString::number(i),pondsGroup);
 		pond->setCheckable(true);
+
+		sprintf(buffer,"Ctrl+%d",i+1);
+		pond-> setShortcut(QKeySequence(tr(buffer)));
+
 		if(i == 0)
 			pond->setChecked(true);
 	}
@@ -310,6 +323,17 @@ void Window::resetAllPonds(){
 		simus->at(i)->init();
 		simus->at(i)->start();
 	}
+
+	sema->release(1);
+}
+
+void Window::resetAllLineages(){
+	sema->acquire(1);
+	simulation->resume();
+	simulation->stopIt();
+	simulation->cutLineages();
+        while(!simulation->isFinished()){};
+	simulation->start();
 
 	sema->release(1);
 }

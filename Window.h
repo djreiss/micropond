@@ -45,6 +45,7 @@ public slots:
 	void resetAllPonds();
 	void configNetwork();
 	void addCell();
+	void resetAllLineages();
 
 private:
 	void closing();
