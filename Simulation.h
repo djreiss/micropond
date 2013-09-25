@@ -30,7 +30,7 @@
 #define WORLD_X 1024 //680
 #define WORLD_Y 800 //480
 #define WORLD_Z 1
-#define GENOME_SIZE 100 //number of operations in a genome
+#define GENOME_SIZE 256 //number of operations in a genome
 
 #ifndef NANOSTYLE
         #define GENOME_OPERATIONS 40 //number of different operations

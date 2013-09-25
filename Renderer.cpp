@@ -6,7 +6,7 @@ Renderer::Renderer(Simulation *sim,QSemaphore *sem)
 	sema = sem;
 	simulation = sim;
 	colorMode = GENOME;
-#ifdef SAVE_PICTURES
+#ifdef SAVE_PICTURES_INTERVAL
 	imageCounter = 0;
 #endif
 }
@@ -130,10 +130,17 @@ void Renderer::updatePicture(){
 	setPixmap(QPixmap::fromImage (temp));
 	//qDebug() << "Pond:"<< simulation->id() << "cells executed: " << counter;
 
-#ifdef SAVE_PICTURES
-        //qDebug()<<(QDir::homePath()+"/micro/asdf"+QString::number(imageCounter)+".png");
-        temp.save(QDir::homePath()+"/micro/asdf"+QString::number(imageCounter)+".png");
+#ifdef SAVE_PICTURES_INTERVAL
+	if(imageCounter % SAVE_PICTURES_INTERVAL == 0) {
+	   char buffer[80];
+	   //qDebug()<<(QDir::homePath()+"/micro/asdf"+QString::number(imageCounter)+".png");
+	   sprintf( buffer, "./micro/asdf%020d.png", imageCounter );
+	   qDebug()<<buffer;
+	   //temp.save(QDir::homePath()+"/micro/asdf"+QString::number(imageCounter)+".png");
+	   temp.save(buffer);
+	}
 	imageCounter++;
+	//qDebug()<<imageCounter;
 #endif
 	
 	sema->release(1);

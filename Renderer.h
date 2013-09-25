@@ -23,7 +23,14 @@
 #define SHOW_LANDSCAPE true
 
 // ffmpeg -r 10 -qscale 1 -i asdf%d.png micropond.avi
-//#define SAVE_PICTURES
+// this works for me (DJR):
+// foreach joe (*.png) convert -geometry 50% $joe `echo $joe | sed 's/png/jpg/'`; end
+// mencoder "mf://*.jpg" -o zzz.mpeg -ovc lavc -lavcopts vcodec=mpeg4
+// or just this (convert not necessary; assumes original size is 1024x800):
+// mencoder "mf://*.png" -o zzz.mpeg -vf scale=512:400 -ovc lavc -lavcopts vcodec=mpeg4
+// this is good, then take the output of this to shrink to 1/2 size using HandBrake:
+// mencoder "mf://micro/*.png" -o zzzz.mpg -of mpeg -mf w=1024:h=800:fps=25:type=png -ovc lavc -lavcopts vcodec=mpeg1video -oac copy
+#define SAVE_PICTURES_INTERVAL 20 // every 20th screen refresh, save an image
 
 
 class Renderer: public QLabel
@@ -53,7 +60,7 @@ private:
 	int colorMode;
 	QSemaphore *sema; //controls the rendering and loading
 
-#ifdef SAVE_PICTURES
+#ifdef SAVE_PICTURES_INTERVAL
 	int imageCounter;
 #endif
 };
